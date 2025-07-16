@@ -47,13 +47,12 @@ for input_image in "$INPUT_DIR"/*.nii.gz; do
         -d 3 \
         -a ${subject_dir}/${filename}_BrainExtractionBrain.nii.gz \
         -x ${subject_dir}/${filename}_BrainExtractionMask.nii.gz \
-        -i 'PriorProbabilityImages[3]' \
-        -m '[0.2,1x1x1]' \
-        -p 'Socrates[1]' \
+        -i 'Kmeans[3]' \
         -m '[0.1,1x1x1]' \
-        -c '[5,0]' \
+        -p 'Socrates[1]' \
+        -c '[10,0.00001]' \
         -k Gaussian \
-        -o [${subject_dir}/${filename}_Segmentation.nii.gz,${subject_dir}/${filename}_SegmentationPosteriors%02d.nii.gz]
+        -o ${subject_dir}/${filename}_Segmentation.nii.gz
     
     echo "Step 3: Extracting white matter mask..."
     # Extract White Matter (label 3) and create binary mask
