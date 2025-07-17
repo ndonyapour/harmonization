@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Directory containing all T1 images
-INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_nyul_negative_removed_test" # t1_mpr_nyul_normalized_negative_removed"
+INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_nyul_normalized_test"
 # Directory for outputs
-OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_extraction_segmentations_negative_removed" #t1_mpr_negative_removed_extraction_segmentations"
+OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_extraction_segmentations"
 
 # Template paths for brain extraction
 # Using OASIS template which is commonly used with ANTs
@@ -86,9 +86,6 @@ for input_image in "$INPUT_DIR"/*.nii.gz; do
         "$subject_dir/${filename}_white_matter_mask.nii.gz" \
         1
 
-    rm ${subject_dir}/${filename}_Segmentation.nii.gz
-    rm ${subject_dir}/${filename}_BrainExtractionPrior0GenericAffine.mat
- 
 done
 
 echo "All processing complete!" 
