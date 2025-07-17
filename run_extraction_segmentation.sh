@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Directory containing all T1 images
-INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_nyul_normalized_test"
+INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_nyul_negative_removed_test" # t1_mpr_nyul_normalized_negative_removed"
 # Directory for outputs
-OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_extraction_segmentations"
+OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_extraction_segmentations_negative_removed" #t1_mpr_negative_removed_extraction_segmentations"
 
 # Template paths for brain extraction
 # Using OASIS template which is commonly used with ANTs
@@ -33,12 +33,12 @@ for input_image in "$INPUT_DIR"/*.nii.gz; do
 
     echo "Step 1: Running brain extraction..."
     # Run ANTs brain extraction
-    # antsBrainExtraction.sh \
-    #     -d 3 \
-    #     -a ${input_image} \
-    #     -e ${T1_TEMPLATE} \
-    #     -m ${BRAIN_TEMPLATE} \
-    #     -o ${subject_dir}/${filename}_
+    antsBrainExtraction.sh \
+        -d 3 \
+        -a ${input_image} \
+        -e ${T1_TEMPLATE} \
+        -m ${BRAIN_TEMPLATE} \
+        -o ${subject_dir}/${filename}_
 
     # echo "Step 2: Running tissue segmentation with Atropos..."
     # # Run Atropos segmentation on the brain-extracted image
@@ -86,6 +86,9 @@ for input_image in "$INPUT_DIR"/*.nii.gz; do
         "$subject_dir/${filename}_white_matter_mask.nii.gz" \
         1
 
+    rm ${subject_dir}/${filename}_Segmentation.nii.gz
+    rm ${subject_dir}/${filename}_BrainExtractionPrior0GenericAffine.mat
+ 
 done
 
 echo "All processing complete!" 

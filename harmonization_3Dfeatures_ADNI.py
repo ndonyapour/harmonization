@@ -388,7 +388,36 @@ def apply_kde_normalization(image_dir: str, seg_dir: str, out_dir: str) -> None:
         output_path = os.path.join(out_dir, f"{Path(file_name).stem.split('.')[0]}.nii.gz")
         save_image(normalized, output_path)
 
-    
+def remove_negative_values(input_dir: str, output_dir: str) -> None:
+    """
+    Remove negative values from the images in the input directory and save the results in the output directory.
+    """
+    min_value = []
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    print("Starting to find minimum value...")
+    for file in tqdm(os.listdir(input_dir), total=len(os.listdir(input_dir))):
+        if file.endswith('.nii.gz') or file.endswith('.nii'):
+            file_path = os.path.join(input_dir, file)
+            img = create_image(file_path)
+            img_data = img.get_data()
+            min_value.append(img_data.min())
+
+    shift = - min(min_value)
+    print(f"Shift: {shift}")
+    print("Starting to remove negative values...")
+    for file in tqdm(os.listdir(input_dir), total=len(os.listdir(input_dir))):
+        if file.endswith('.nii.gz') or file.endswith('.nii'):
+            file_path = os.path.join(input_dir, file)
+            img = create_image(file_path)
+            img_data = img.get_data()
+            img_data = img_data + shift
+            img = img.with_data(img_data)
+            save_image(img, os.path.join(output_dir, file))
+
+    print(f"Removed negative values for all images in {input_dir} and saved to {output_dir}")
+       
+
 if __name__ == "__main__":
     
     input_dir = "../datasets/ADNI/t1_mpr_n4_corrected"
@@ -431,12 +460,16 @@ if __name__ == "__main__":
 
 
   
-    print("Running 3D feature extraction on original images...")
-    run_3d_extraction(input_dir, seg_dir, original_features_dir)
-    print("Running 3D feature extraction on Nyulnormalized images...")
-    run_3d_extraction(nyul_normalized_dir, seg_dir, nyul_normalized_features_dir)
-    print("Running 3D feature extraction on KDE normalized images...")
-    run_3d_extraction(kde_normalized_dir, seg_dir, kde_normalized_features_dir)
+    # print("Running 3D feature extraction on original images...")
+    # run_3d_extraction(input_dir, seg_dir, original_features_dir)
+    # print("Running 3D feature extraction on Nyulnormalized images...")
+    # run_3d_extraction(nyul_normalized_dir, seg_dir, nyul_normalized_features_dir)
+    # print("Running 3D feature extraction on KDE normalized images...")
+    # run_3d_extraction(kde_normalized_dir, seg_dir, kde_normalized_features_dir)
 
     # apply_kde_normalization(input_dir, seg_dir, normalized_dir)
     # #run_3d_extraction(normalized_dir, seg_dir, normalized_features_dir)
+
+    nyul_normalized_dir = f"../datasets/ADNI/t1_mpr_nyul_normalized"
+    nyul_normalized_negative_removed = f"../datasets/ADNI/t1_mpr_nyul_normalized_negative_removed"
+    remove_negative_values(nyul_normalized_dir, nyul_normalized_negative_removed)
