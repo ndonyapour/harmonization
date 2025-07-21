@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Directory containing all T1 images
-INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_nyul_normalized_test"
+INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_nyul_normalized"
 # Directory for outputs
-OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_extraction_segmentations"
+OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_segmentations"
 
 # Template paths for brain extraction
 # Using OASIS template which is commonly used with ANTs
@@ -55,7 +55,7 @@ for input_image in "$INPUT_DIR"/*.nii.gz; do
         -o ${subject_dir}/${filename}_Segmentation.nii.gz
     
     echo "Step 3: Extracting white matter mask..."
-    # Extract White Matter (label 3) and create binary mask
+    # Extract White Matter (label 2) and create binary mask
     ThresholdImage 3 \
         "$subject_dir/${filename}_Segmentation.nii.gz" \
         "$subject_dir/${filename}_white_matter_mask.nii.gz" \

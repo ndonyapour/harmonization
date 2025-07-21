@@ -46,7 +46,7 @@ for input_image in "$INPUT_DIR"/*.nii.gz; do
         -k Gaussian \
         -o [${subject_dir}/${filename}_Segmentation.nii.gz,${subject_dir}/${filename}_SegmentationPosteriors%02d.nii.gz]
     
-    Extract White Matter from segmentation (class 3)
+    # Extract White Matter from segmentation (class 3)
     ThresholdImage 3 \
         "$subject_dir/${filename}_Segmentation.nii.gz" \
         "$subject_dir/${filename}_white_matter_mask2.nii.gz" \
