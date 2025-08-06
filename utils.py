@@ -1,8 +1,8 @@
 import os
 import numpy as np
 
-#import nibabel as nib
-#from nyxusmed import Nyxus3DFeatureExtractor
+import nibabel as nib
+from nyxusmed import Nyxus3DFeatureExtractor
 from intensity_normalization import NyulNormalizer, WhiteStripeNormalizer, KDENormalizer
 from intensity_normalization.adapters.images import create_image 
 from intensity_normalization.adapters.io import  save_image
@@ -50,25 +50,28 @@ def run_3d_extraction(input_dir: str, seg_dir: str, out_dir: str) -> None:
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    nifti_files = [f for f in os.listdir(input_dir) 
-                   if f.endswith('.nii.gz') or f.endswith('.nii')]
-    print("\nTesting 3D Feature Extraction...")
-    for file in nifti_files:
-        input_file = os.path.join(input_dir, file)
-        seg_file = os.path.join(seg_dir, Path(file).stem.split(".")[0], 
-                            f"{Path(file).stem.split('.')[0]}_white_matter_mask.nii.gz")
-        extractor = Nyxus3DFeatureExtractor(
-            input_files=input_file,
-            seg_files=seg_file,
-            out_dir=out_dir,
-            features=["ALL"],
-            per_slice=False,
-            out_format="csv",
-            metadata_file=None
-        )
-        print(f"Running 3D feature extraction for {file}...")
-        extractor.run_parallel()
-        print(f"3D results saved to: {out_dir}")
+    input_dir = Path(input_dir)
+    seg_dir = Path(seg_dir)
+
+    for input_file in input_dir.iterdir():
+        if str(input_file).endswith(".nii.gz") or str(input_file).endswith(".nii"):
+            seg_file = input_file.stem.split(".")[0]+"_white_matter_mask.nii.gz"
+            seg_file = seg_dir.joinpath(input_file.stem.split(".")[0]).joinpath(seg_file)
+            #import pdb; pdb.set_trace()              
+            outpath = Path(out_dir)
+            # outfile = outpath.joinpath(input_file.stem.split(".")[0]) + ".csv"
+            extractor = Nyxus3DFeatureExtractor(
+                        input_file=str(input_file),
+                        seg_files=str(seg_file),
+                        out_dir=outpath ,
+                        features=["ALL"],
+                        per_slice=False,
+                        out_format="csv"
+                    )
+                
+            print(f"Running 3D feature extraction for {input_file.name}...")
+            extractor.run_parallel()
+            print(f"3D results saved to: {outpath}")
 
 def get_subject_id(nifti_img, filename: str = '') -> str:
     header = nifti_img.header
@@ -127,7 +130,7 @@ def select_training_images(input_dir: str, filename: str = '') -> list[str]:
 def learn_Nyul_normalization(image_dir: str, seg_dir: str, train_files: list[str] = [],
                              min_percentile: float = 1.0, max_percentile: float = 99.99, 
                              output_min: float = 0.0, standard_histogram_path: str = None,
-                             percentile_step: float = 5.0) -> NyulNormalizer:
+                             percentile_step: float = 10.0) -> NyulNormalizer:
     """Learn Nyul normalization parameters using white matter masks directly in fit.
     
     Args:
@@ -171,7 +174,7 @@ def learn_Nyul_normalization(image_dir: str, seg_dir: str, train_files: list[str
     normalizer = NyulNormalizer(min_percentile=min_percentile, 
                               max_percentile=max_percentile,
                               output_min_value=output_min, 
-                              output_max_value=output_max,
+                              output_max_value=output_max, 
                               percentile_step=percentile_step)
     
     normalizer.fit_population(train_images, masks=train_masks)
@@ -209,13 +212,6 @@ def apply_nyul_normalization(image_dir: str, seg_dir: str, out_dir: str, normali
         
         mask_file = os.path.join(seg_dir, Path(file_name).stem.split(".")[0], 
                               f"{Path(file_name).stem.split('.')[0]}_mask.nii.gz")
-        
-        if os.path.exists(mask_file):
-            mask_nib = nib.load(mask_file)
-            mask = mask_nib.get_fdata() > 0
-        else:
-            print(f"Warning: No mask found for {file_name}, using whole brain")
-            mask = np.ones_like(img, dtype=bool)
         
         # Apply normalization with mask
         normalized = normalizer.transform(create_image(os.path.join(image_dir, file_name)), 
@@ -291,7 +287,7 @@ def apply_kde_normalization(image_dir: str, seg_dir: str, out_dir: str) -> None:
         if seg_dir is not None:
             mask_file = os.path.join(seg_dir, Path(file_name).stem.split(".")[0], 
                                 f"{Path(file_name).stem.split('.')[0]}_mask.nii.gz")
-            normalized = kde_normalizer.ftransform(create_image(img_file), mask=create_image(mask_file))
+            normalized = kde_normalizer.fit_transform(create_image(img_file), mask=create_image(mask_file))
         else:
             normalized = kde_normalizer.fit_transform(create_image(img_file))
    

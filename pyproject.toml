@@ -1,0 +1,21 @@
+[project]
+name = "harmonization_test"
+version = "0.1.0"
+description = "General tools for medical imaging"
+readme = "README.md"
+authors = [
+    { name = "Nazanin Donyapour", email = "nazanin.donyapour@axleinfo.com" }
+]
+
+requires-python = ">=3.9"
+dependencies = [
+    "intensity-normalization>=2.2.4",
+    "matplotlib>=3.9.4",
+    "nibabel>=3.2.2",
+    "pydicom>=2.4.4",
+    "convmed @ git+ssh://git@github.com/AretixOS/convmed.git@dev",
+    "segmed @ git+ssh://git@github.com/hamshkhawar/segmed.git@feature/segmed_handling_files",
+    "nyxusmed @ git+ssh://git@github.com/AretixOS/nyxusmed.git",
+]
+
+

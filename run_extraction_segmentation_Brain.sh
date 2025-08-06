@@ -1,11 +1,7 @@
 #!/bin/bash
 
 # Directory containing all T1 images
-# INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_nyul_normalized"
-# # Directory for outputs
-# OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/ADNI/t1_mpr_segmentations"
-
-INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/Craig_scans/T1_nifti"
+INPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/Craig_scans/T1_nifti_nyul_normalized"
 OUTPUT_DIR="/Users/donyapourn2/Desktop/projects/datasets/Craig_scans/T1_nifti_segmentations"
 
 # Template paths for brain extraction
@@ -62,7 +58,7 @@ for input_image in "$INPUT_DIR"/*.nii.gz; do
     ThresholdImage 3 \
         "$subject_dir/${filename}_Segmentation.nii.gz" \
         "$subject_dir/${filename}_white_matter_mask.nii.gz" \
-        2 2 1 0
+        3 3 1 0
 
     # # Fill holes in 3D
     ImageMath 3 \
